@@ -28,7 +28,15 @@ OUT_DIR := out
 DIST_DIR := dist
 
 tools:
-	echo TODO
+	@command -v $(PY) >/dev/null || { echo "Falta $(PY)"; exit 1; }
+	@command -v curl >/dev/null || { echo "Falta curl"; exit 1; }
+	@command -v bats >/dev/null || { echo "Falta bats"; exit 1; }
+	@command -v grep >/dev/null || { echo "Falta grep"; exit 1; }
+	@command -v sort >/dev/null || { echo "Falta sort"; exit 1; }
+	@command -v awk >/dev/null || { echo "Falta awk"; exit 1; }
+	@command -v tar >/dev/null || { echo "Falta tar"; exit 1; }
+	@tar --version 2>/dev/null | grep -q 'GNU tar' || { echo "Se requiere GNU tar"; exit 1; }
+	@echo "Todas las herramientas necesarias están instaladas."
 
 build:
 	echo TODO
