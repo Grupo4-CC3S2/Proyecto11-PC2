@@ -11,7 +11,7 @@ OUT_DIR="out"
 
 # Chequeo de DNS
 echo "Resolviendo A para ${DOMAIN}..."
-if dig +short A "$DOMAIN"> "${OUT_DIR}/dns.txt"; then
+if getent hosts "$DOMAIN" | awk '{print $1}' > "${OUT_DIR}/dns.txt"; then
   if [[ -s "${OUT_DIR}/dns.txt" ]]; then
     echo "DNS OK: $(cat "${OUT_DIR}/dns.txt" | head -n1)"
   else
