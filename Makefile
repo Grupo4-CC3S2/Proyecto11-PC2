@@ -78,8 +78,19 @@ run: ## Consulta cada URL con curl, registra tiempos, códigos de estado y heade
 	@echo "[INFO] Realizando evaluación SLA..."
 	@$(SRC_DIR)/evaluate_metrics.sh || true
 
-pack:
-	echo TODO
+pack: build ## Crear paquete reproducible en dist/
+	@echo "[PACK] Creando paquete $(RELEASE)..."
+	@tar czf $(DIST_DIR)/proyecto-sla-$(RELEASE).tar.gz \
+		--exclude='out' \
+		--exclude='dist' \
+		--exclude='__pycache__' \
+		--exclude='*.pyc' \
+		--exclude='venv' \
+		--exclude='.git' \
+		--transform 's,^,proyecto-sla-$(RELEASE)/,' \
+		src/ tests/ docs/ Makefile README.md requirements.txt app.py 2>/dev/null || true
+	@echo "[PACK] ✓ Paquete creado: $(DIST_DIR)/proyecto-sla-$(RELEASE).tar.gz"
+	@ls -lh $(DIST_DIR)/proyecto-sla-$(RELEASE).tar.gz
 
 clean: ## Limpiar archivos generados
 	rm -rf $(OUT_DIR) $(DIST_DIR)
