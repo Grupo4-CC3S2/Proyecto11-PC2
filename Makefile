@@ -4,22 +4,7 @@ MAKEFLAGS += --warn-undefined-variables --no-builtin-rules
 .DELETE_ON_ERROR:
 .DEFAULT_GOAL := help
 
-.PHONY: init-app prepare tools build test run pack clean help
-
-# Variables para la app de prueba
-RELEASE ?= "v1.0.0"
-PORT ?= 8080
-MESSAGE ?= "Hola, PC2!"
-VENV_DIR ?= venv
-DOMAIN ?= pc2.local
-
-# Variables para evaluación SLA
-TARGET ?= "localhost:8080"
-SLA_FILE ?= sla.csv
-
-PY ?= python3
-PYTHON := $(VENV_DIR)/bin/python
-PIP := $(VENV_DIR)/bin/pip
+.PHONY: init-app prepare tools build test run pack clean help all
 
 SHELLCHECK := shellcheck
 SHFMT := shfmt
@@ -27,26 +12,63 @@ SRC_DIR := src
 TEST_DIR := tests
 OUT_DIR := out
 DIST_DIR := dist
+DOCS_DIR := docs
+
+# Variables para la app de prueba
+RELEASE ?= v1.0.0
+PORT ?= 8080
+MESSAGE ?= Hola, PC2!
+VENV_DIR ?= venv
+DOMAIN ?= pc2.local
+
+# Variables para evaluación SLA
+BUDGET_MS ?= 500
+SAMPLES ?= 20
+TARGET ?= pc2.local:8080
+SLA_FILE ?= $(DOCS_DIR)/sla.csv
+SLOW_COUNTER ?= 1
+# Se lee de la primera columna de sla.csv, separando con comas
+TARGETS := $(shell awk -F, 'NR>1 {print $$1}' $(SLA_FILE) | paste -sd "," -)
+
+PY ?= python3
+PYTHON := $(VENV_DIR)/bin/python
+PIP := $(VENV_DIR)/bin/pip
+
+export REALESE PORT MESSAGE DOMAIN BUDGET_MS SAMPLES TARGET SLA_FILE TARGETS SLOW_COUNTER
+export LC_ALL := C
+
+all: tools test run ## Verifica herramientas, corre tests y ejecuta el sistema
 
 tools:
 	@command -v $(PY) >/dev/null || { echo "Falta $(PY)"; exit 1; }
 	@command -v curl >/dev/null || { echo "Falta curl"; exit 1; }
+	@command -v getent >/dev/null || { echo "Falta getent"; exit 1; }
+	@command -v ss >/dev/null || { echo "Falta ss"; exit 1; }
 	@command -v bats >/dev/null || { echo "Falta bats"; exit 1; }
 	@command -v grep >/dev/null || { echo "Falta grep"; exit 1; }
 	@command -v sort >/dev/null || { echo "Falta sort"; exit 1; }
 	@command -v awk >/dev/null || { echo "Falta awk"; exit 1; }
 	@command -v tar >/dev/null || { echo "Falta tar"; exit 1; }
 	@tar --version 2>/dev/null | grep -q 'GNU tar' || { echo "Se requiere GNU tar"; exit 1; }
-	@echo "Todas las herramientas necesarias están instaladas."
+	@echo "[INFO] Todas las herramientas necesarias están instaladas."
 
 build:
 	echo TODO
 
 test:
-	echo TODO
+	@bats $(TEST_DIR)/*.bats
 
 run: ## Consulta cada URL con curl, registra tiempos, códigos de estado y headers y evalúa cumplimiento
-	echo TODO
+	@mkdir -p $(OUT_DIR)
+	@chmod +x $(SRC_DIR)/*.sh
+	@echo "[INFO] Iniciando pruebas DNS, HTTP y sockets..."
+	@$(SRC_DIR)/basic_checks.sh
+	@echo "[INFO] Recolectando de métricas..."
+	@echo "$(SLA_FILE)"
+	@echo "${TARGETS}" 
+	@$(SRC_DIR)/collect_metrics.sh 1>/dev/null
+	@echo "[INFO] Realizando evaluación SLA..."
+	@$(SRC_DIR)/evaluate_metrics.sh || true
 
 pack:
 	echo TODO
@@ -57,7 +79,7 @@ clean: ## Limpiar archivos generados
 help:
 	@grep -E '^[a-zA-Z0-9._-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-init-app: prepare ## Inicializa aplicación Flask para pruebas
+init-app: prepare hosts-setup ## Inicializa aplicación Flask para pruebas
 	@$(PYTHON) app.py
 
 prepare: $(VENV_DIR) ## Crear entorno virtual e instala dependencias de la app de pruebas
