@@ -42,6 +42,8 @@ all: tools test run ## Verifica herramientas, corre tests y ejecuta el sistema
 tools:
 	@command -v $(PY) >/dev/null || { echo "Falta $(PY)"; exit 1; }
 	@command -v curl >/dev/null || { echo "Falta curl"; exit 1; }
+	@command -v getent >/dev/null || { echo "Falta getent"; exit 1; }
+	@command -v ss >/dev/null || { echo "Falta ss"; exit 1; }
 	@command -v bats >/dev/null || { echo "Falta bats"; exit 1; }
 	@command -v grep >/dev/null || { echo "Falta grep"; exit 1; }
 	@command -v sort >/dev/null || { echo "Falta sort"; exit 1; }
@@ -77,7 +79,7 @@ clean: ## Limpiar archivos generados
 help:
 	@grep -E '^[a-zA-Z0-9._-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-init-app: prepare ## Inicializa aplicación Flask para pruebas
+init-app: prepare hosts-setup ## Inicializa aplicación Flask para pruebas
 	@$(PYTHON) app.py
 
 prepare: $(VENV_DIR) ## Crear entorno virtual e instala dependencias de la app de pruebas
