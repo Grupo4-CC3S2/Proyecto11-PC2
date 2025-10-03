@@ -26,7 +26,8 @@ echo "endpoint,p50_ms,p95_ms,p99_ms,expected_code,observed_code,estado_final" > 
 fallo_global=0
 
 # Procesar cada endpoint definido en SLA_FILE (saltando header)
-tail -n +2 "$SLA_FILE" | while IFS=',' read -r endpoint p50_budget p95_budget p99_budget expected_code required_field; do
+while IFS=',' read -r endpoint p50_budget p95_budget p99_budget expected_code required_field; do
+
     echo "Evaluando $endpoint ..."
 
     # Verificar contenido requerido en la respuesta
@@ -89,7 +90,7 @@ tail -n +2 "$SLA_FILE" | while IFS=',' read -r endpoint p50_budget p95_budget p9
 
     # Log en consola
     echo "$emoji $endpoint -> p50=${p50}ms (≤${p50_budget}), p95=${p95}ms (≤${p95_budget}), p99=${p99}ms (≤${p99_budget}), code=$expected_code => $estado"
-done
+done < <(tail -n +2 "$SLA_FILE")
 
 echo "Evaluación completada. Resultados en $OUTPUT_FILE"
 
