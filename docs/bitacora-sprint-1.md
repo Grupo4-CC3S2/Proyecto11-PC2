@@ -43,3 +43,37 @@ bash src/collect_metrics.sh
 ```bash
 bats tests/test_collector.bats
 ```
+
+# Bitácora Sprint 1 - Mora
+
+### basic_checks.sh
+- Implementación de chequeos básicos:
+    - Resolución DNS
+    - Puerto escuchando
+    - Endpoint `/salud`
+    - Manejo de errores y códigos de salida específicos
+    - Salida de logs en directorio `out/`
+
+### Makefile
+- Definición de reglas:
+    - `OUT_DIR` para resultados
+    - `run` para ejecutar el flujo p
+    - `tools` para verificar dependencias
+    - `hosts-setup` para configurar `/etc/hosts` en pruebas
+    - `prepare` para inicializar entorno
+    - `init-app` para iniciar servidor Flask
+
+- Definición de variables de entorno:
+    - `RELEASE`, `PORT`, `MESSAGE`, `VENV_DIR`, `DOMAIN` variables para la app de prueba
+    - `SLA_FILE` será evaluado en el siguiente sprint.
+
+### Comandos ejecutados
+- Para correr la aplicación de prueba:
+```bash
+make init-app
+```
+
+- Para verificar dependencias:
+```bash
+make tools
+```
