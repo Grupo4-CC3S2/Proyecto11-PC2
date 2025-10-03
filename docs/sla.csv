@@ -1,0 +1,7 @@
+endpoint,p50_budget_ms,p95_budget_ms,p99_budget_ms,expected_code,required_field
+http://pc2.local:8080/,200,400,600,200,message
+http://pc2.local:8080/salud,200,400,600,200,status
+http://pc2.local:8080/config,300,600,900,200,RELEASE
+http://pc2.local:8080/lento,400,600,1000,200,status
+http://pc2.local:8080/falla,200,400,600,500,error
+http://pc2.local:8080/notfound,200,400,600,404,error
