@@ -9,6 +9,7 @@ app = Flask(__name__)
 RELEASE = os.getenv("RELEASE", "v1.0.0")
 PORT = int(os.getenv("PORT", "8080"))  # asegurar que sea int
 MESSAGE = os.getenv("MESSAGE", "Hola, PC2!")
+SLOW_COUNTER = int(os.getenv("SLOW_COUNTER", "3"))
 
 
 # Endpoint raíz
@@ -39,7 +40,12 @@ def config():
 # Endpoint con latencia artificial
 @app.route("/lento", methods=["GET"])
 def lento():
-    delay = random.uniform(1.0, 2.0)  # entre 500ms y 2s
+    global SLOW_COUNTER
+    if SLOW_COUNTER > 0:
+        SLOW_COUNTER -= 1
+        delay = random.uniform(1.0, 2.0)  # entre 500ms y 2s
+    else:
+        delay = random.uniform(0.1, 0.5)  # entre 100ms y 400ms
     time.sleep(delay)
     data = {"status": "ok", "delay_seconds": round(delay, 3)}
     print("[/lento] →", data, flush=True)
@@ -58,6 +64,14 @@ def falla():
     data = {"error": "fallo interno"}
     print("[/falla] →", data, flush=True)
     return jsonify(data), 500
+
+@app.route("/restart", methods=["GET"])
+def restart():
+    global SLOW_COUNTER
+    SLOW_COUNTER = int(os.getenv("SLOW_COUNTER", "3"))
+    data = {"status": "ok"}
+    print("[/restart] →", data, flush=True)
+    return jsonify(data), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=PORT, debug=True)

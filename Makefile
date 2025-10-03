@@ -7,19 +7,24 @@ MAKEFLAGS += --warn-undefined-variables --no-builtin-rules
 .PHONY: init-app prepare tools build test run pack clean help
 
 # Variables para la app de prueba
-RELEASE ?= "v1.0.0"
+RELEASE ?= v1.0.0
 PORT ?= 8080
-MESSAGE ?= "Hola, PC2!"
+MESSAGE ?= Hola, PC2!
 VENV_DIR ?= venv
 DOMAIN ?= pc2.local
 
 # Variables para evaluación SLA
-TARGET ?= "localhost:8080"
+BUDGET_MS ?= 500
+SAMPLES ?= 20
+TARGET ?= localhost:8080
 SLA_FILE ?= sla.csv
-
+TARGETS := http://localhost:8080/,http://localhost:8080/salud,http://localhost:8080/config,http://localhost:8080/lento,http://localhost:8080/notfound,http://localhost:8080/falla
 PY ?= python3
 PYTHON := $(VENV_DIR)/bin/python
 PIP := $(VENV_DIR)/bin/pip
+
+export REALESE PORT MESSAGE DOMAIN BUDGET_MS SAMPLES TARGET SLA_FILE TARGETS
+export LC_ALL := C
 
 SHELLCHECK := shellcheck
 SHFMT := shfmt
@@ -46,7 +51,12 @@ test:
 	echo TODO
 
 run: ## Consulta cada URL con curl, registra tiempos, códigos de estado y headers y evalúa cumplimiento
-	echo TODO
+	@mkdir -p $(OUT_DIR)
+	@chmod +x $(SRC_DIR)/*.sh
+	@echo "[INFO] Iniciando pruebas DNS, HTTP y sockets..."
+	@$(SRC_DIR)/basic_checks.sh
+	@echo "[INFO] Iniciando recolección de métricas..."
+	@$(SRC_DIR)/collect_metrics.sh
 
 pack:
 	echo TODO
