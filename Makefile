@@ -52,7 +52,11 @@ tools:
 	@tar --version 2>/dev/null | grep -q 'GNU tar' || { echo "Se requiere GNU tar"; exit 1; }
 	@echo "[INFO] Todas las herramientas necesarias están instaladas."
 
-build: tools ## Preparar artefactos intermedios sin ejecutar
+BUILD_STAMP := $(OUT_DIR)/.build_stamp
+
+build: tools $(BUILD_STAMP) ## Preparar artefactos intermedios sin ejecutar
+
+$(BUILD_STAMP): $(SLA_FILE) $(SRC_DIR)/*.sh
 	@echo "[BUILD] Preparando entorno..."
 	@mkdir -p $(OUT_DIR) $(DIST_DIR)
 	@chmod +x $(SRC_DIR)/*.sh
@@ -61,6 +65,7 @@ build: tools ## Preparar artefactos intermedios sin ejecutar
 	@test -s $(SLA_FILE) || { echo "Error: $(SLA_FILE) está vacío"; exit 5; }
 	@echo "[BUILD] Validando que hay al menos 1 endpoint en SLA..."
 	@[ $$(tail -n +2 $(SLA_FILE) | wc -l) -gt 0 ] || { echo "Error: SLA sin endpoints"; exit 5; }
+	@touch $(BUILD_STAMP)
 	@echo "[BUILD] Build completado. Sistema listo para 'make run'"
 
 test:
