@@ -24,6 +24,10 @@ teardown() {
             fi
         done
     fi
+    unset TEST_DIR
+    unset TARGETS
+    unset SAMPLES
+    unset BUDGET_MS
 }
 
 @test "colector requiere variable TARGETS definida" {
@@ -73,8 +77,8 @@ teardown() {
     export TARGETS="http://localhost:8080/lento"
     export BUDGET_MS=500
     export SAMPLES=1
+    curl -s http://localhost:8080/restart 1>/dev/null 2>&1
     bash src/collect_metrics.sh
-    
     csv_file=$(ls -t out/metrics-raw-*.csv | head -1)
     
     # Verificar que detecta budget excedido
