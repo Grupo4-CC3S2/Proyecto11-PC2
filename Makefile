@@ -11,6 +11,7 @@ RELEASE ?= "v1.0.0"
 PORT ?= 8080
 MESSAGE ?= "Hola, PC2!"
 VENV_DIR ?= venv
+DOMAIN ?= pc2.local
 
 # Variables para evaluación SLA
 TARGET ?= "localhost:8080"
@@ -62,6 +63,15 @@ init-app: prepare ## Inicializa aplicación Flask para pruebas
 prepare: $(VENV_DIR) ## Crear entorno virtual e instala dependencias de la app de pruebas
 	@$(PIP) install --upgrade pip 1>/dev/null 2>&1
 	@$(PIP) install -r requirements.txt 1>/dev/null 2>&1
+
+hosts-setup: ## Añadir '127.0.0.1 $(DOMAIN)' a hosts (Linux/macOS) o mostrar comando para Windows
+	@if [ -f /etc/hosts ]; then \
+		if ! grep -qE "127\.0\.0\.1\s+$(DOMAIN)" /etc/hosts; then \
+			echo "Agregando $(DOMAIN) a /etc/hosts"; \
+			echo "127.0.0.1 $(DOMAIN)" | sudo tee -a /etc/hosts; \
+		else echo "$(DOMAIN) ya está presente en /etc/hosts"; fi; \
+	else echo "/etc/hosts no encontrado."; \
+	fi
 
 $(VENV_DIR):
 	@$(PY) -m venv $(VENV_DIR) 1>/dev/null 2>&1
