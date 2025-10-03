@@ -34,7 +34,7 @@ PY ?= python3
 PYTHON := $(VENV_DIR)/bin/python
 PIP := $(VENV_DIR)/bin/pip
 
-export REALESE PORT MESSAGE DOMAIN BUDGET_MS SAMPLES TARGET SLA_FILE TARGETS SLOW_COUNTER
+export RELEASE PORT MESSAGE DOMAIN BUDGET_MS SAMPLES TARGET SLA_FILE TARGETS SLOW_COUNTER
 export LC_ALL := C
 
 all: tools test run ## Verifica herramientas, corre tests y ejecuta el sistema
@@ -52,8 +52,16 @@ tools:
 	@tar --version 2>/dev/null | grep -q 'GNU tar' || { echo "Se requiere GNU tar"; exit 1; }
 	@echo "[INFO] Todas las herramientas necesarias están instaladas."
 
-build:
-	echo TODO
+build: tools ## Preparar artefactos intermedios sin ejecutar
+	@echo "[BUILD] Preparando entorno..."
+	@mkdir -p $(OUT_DIR) $(DIST_DIR)
+	@chmod +x $(SRC_DIR)/*.sh
+	@echo "[BUILD] Validando configuración SLA..."
+	@test -f $(SLA_FILE) || { echo "Error: falta archivo $(SLA_FILE)"; exit 5; }
+	@test -s $(SLA_FILE) || { echo "Error: $(SLA_FILE) está vacío"; exit 5; }
+	@echo "[BUILD] Validando que hay al menos 1 endpoint en SLA..."
+	@[ $$(tail -n +2 $(SLA_FILE) | wc -l) -gt 0 ] || { echo "Error: SLA sin endpoints"; exit 5; }
+	@echo "[BUILD] Build completado. Sistema listo para 'make run'"
 
 test:
 	@bats $(TEST_DIR)/*.bats
