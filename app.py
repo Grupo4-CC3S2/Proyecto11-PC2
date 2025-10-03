@@ -43,7 +43,7 @@ def lento():
     global SLOW_COUNTER
     if SLOW_COUNTER > 0:
         SLOW_COUNTER -= 1
-        delay = random.uniform(0.5, 2.0)  # entre 500ms y 2s
+        delay = random.uniform(1.0, 2.0)  # entre 500ms y 2s
     else:
         delay = random.uniform(0.1, 0.5)  # entre 100ms y 400ms
     time.sleep(delay)
@@ -64,6 +64,14 @@ def falla():
     data = {"error": "fallo interno"}
     print("[/falla] →", data, flush=True)
     return jsonify(data), 500
+
+@app.route("/restart", methods=["GET"])
+def restart():
+    global SLOW_COUNTER
+    SLOW_COUNTER = int(os.getenv("SLOW_COUNTER", "3"))
+    data = {"status": "ok"}
+    print("[/restart] →", data, flush=True)
+    return jsonify(data), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=PORT, debug=True)
