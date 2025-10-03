@@ -4,7 +4,15 @@ MAKEFLAGS += --warn-undefined-variables --no-builtin-rules
 .DELETE_ON_ERROR:
 .DEFAULT_GOAL := help
 
-.PHONY: init-app prepare tools build test run pack clean help
+.PHONY: init-app prepare tools build test run pack clean help all
+
+SHELLCHECK := shellcheck
+SHFMT := shfmt
+SRC_DIR := src
+TEST_DIR := tests
+OUT_DIR := out
+DIST_DIR := dist
+DOCS_DIR := docs
 
 # Variables para la app de prueba
 RELEASE ?= v1.0.0
@@ -16,22 +24,20 @@ DOMAIN ?= pc2.local
 # Variables para evaluación SLA
 BUDGET_MS ?= 500
 SAMPLES ?= 20
-TARGET ?= localhost:8080
-SLA_FILE ?= sla.csv
-TARGETS := http://localhost:8080/,http://localhost:8080/salud,http://localhost:8080/config,http://localhost:8080/lento,http://localhost:8080/notfound,http://localhost:8080/falla
+TARGET ?= pc2.local:8080
+SLA_FILE ?= $(DOCS_DIR)/sla.csv
+SLOW_COUNTER ?= 1
+# Se lee de la primera columna de sla.csv, separando con comas
+TARGETS := $(shell awk -F, 'NR>1 {print $$1}' $(SLA_FILE) | paste -sd "," -)
+
 PY ?= python3
 PYTHON := $(VENV_DIR)/bin/python
 PIP := $(VENV_DIR)/bin/pip
 
-export REALESE PORT MESSAGE DOMAIN BUDGET_MS SAMPLES TARGET SLA_FILE TARGETS
+export REALESE PORT MESSAGE DOMAIN BUDGET_MS SAMPLES TARGET SLA_FILE TARGETS SLOW_COUNTER
 export LC_ALL := C
 
-SHELLCHECK := shellcheck
-SHFMT := shfmt
-SRC_DIR := src
-TEST_DIR := tests
-OUT_DIR := out
-DIST_DIR := dist
+all: tools test run ## Verifica herramientas, corre tests y ejecuta el sistema
 
 tools:
 	@command -v $(PY) >/dev/null || { echo "Falta $(PY)"; exit 1; }
@@ -42,21 +48,25 @@ tools:
 	@command -v awk >/dev/null || { echo "Falta awk"; exit 1; }
 	@command -v tar >/dev/null || { echo "Falta tar"; exit 1; }
 	@tar --version 2>/dev/null | grep -q 'GNU tar' || { echo "Se requiere GNU tar"; exit 1; }
-	@echo "Todas las herramientas necesarias están instaladas."
+	@echo "[INFO] Todas las herramientas necesarias están instaladas."
 
 build:
 	echo TODO
 
 test:
-	echo TODO
+	@bats $(TEST_DIR)/*.bats
 
 run: ## Consulta cada URL con curl, registra tiempos, códigos de estado y headers y evalúa cumplimiento
 	@mkdir -p $(OUT_DIR)
 	@chmod +x $(SRC_DIR)/*.sh
 	@echo "[INFO] Iniciando pruebas DNS, HTTP y sockets..."
 	@$(SRC_DIR)/basic_checks.sh
-	@echo "[INFO] Iniciando recolección de métricas..."
-	@$(SRC_DIR)/collect_metrics.sh
+	@echo "[INFO] Recolectando de métricas..."
+	@echo "$(SLA_FILE)"
+	@echo "${TARGETS}" 
+	@$(SRC_DIR)/collect_metrics.sh 1>/dev/null
+	@echo "[INFO] Realizando evaluación SLA..."
+	@$(SRC_DIR)/evaluate_metrics.sh || true
 
 pack:
 	echo TODO
