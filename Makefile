@@ -37,7 +37,7 @@ PIP := $(VENV_DIR)/bin/pip
 export RELEASE PORT MESSAGE DOMAIN BUDGET_MS SAMPLES TARGET SLA_FILE TARGETS SLOW_COUNTER
 export LC_ALL := C
 
-all: tools test run ## Verifica herramientas, corre tests y ejecuta el sistema
+all: tools build test run ## Verifica herramientas, construye, prueba y ejecuta el sistema
 
 tools:
 	@command -v $(PY) >/dev/null || { echo "Falta $(PY)"; exit 1; }
