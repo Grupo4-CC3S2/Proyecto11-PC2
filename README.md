@@ -119,6 +119,14 @@ make pack
 - **(Ambar)** ALERTA: p99 > umbral (pero p50 y p95 OK)
 - **(Rojo)** FALLO: p50 o p95 exceden umbral O código HTTP incorrecto O falta campo requerido
 
+## Códigos de salida
+- `0`: Éxito
+- `3`: Error de red (puerto)
+- `4`: Error DNS
+- `5`: Error de configuración (variable faltante)
+- `6`: Archivo de métricas no encontrado
+- `7`: Incumplimiento de SLA detectado
+
 ## Targets del Makefile
 
 ```bash
@@ -134,3 +142,16 @@ make all           # Verifica herramientas, construye, prueba y ejecuta el siste
 make prepare       # Crear entorno virtual e instala dependencias de la app de pruebas
 make hosts-setup   # Configura pc2.local en /etc/hosts
 ```
+
+
+# Videos
+
+## Video Sprint 1
+
+## Video Sprint 2
+
+## Video Sprint 3
+
+## Video Final
+
+[Video Final grupo 4](https://drive.google.com/file/d/14OeFzzvH3b0y1cL5lnzSIA9AkLzYNjzQ/view?usp=drive_link)
