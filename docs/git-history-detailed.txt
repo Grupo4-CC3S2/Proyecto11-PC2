@@ -1,0 +1,63 @@
+*   d3192bf (HEAD -> main, tag: v1.0.0, origin/main, origin/HEAD) Merge pull request #9 from Grupo4-CC3S2/develop
+|\  
+| *   fe85d9d (origin/develop, develop) Merge pull request #8 from Grupo4-CC3S2/feature/evidence-release
+| |\  
+| | * ec88bc8 (origin/feature/evidence-release, feature/evidence-release) Añade documentación con los archivos que se generan en el proyecto
+| | * 10c1539 Añade bitacora del sprint 3
+| | * 4395f02 Añade README con documentación significativa del proyecto
+| | * 9b89048 Añade build al target all del Makefile
+| | * 2db5520 Elimanando archivos .gitkeep
+| | * 5dfa2e2 Agrega cache incremental en target build con timestamp
+| | * 5204f99 Implementa target pack con empaquetado reproducible en dist/
+| | * b5cad6a Implementa target build con validaciones de configuración
+| |/  
+* | 3c1d962 Merge pull request #7 from Grupo4-CC3S2/develop
+|\| 
+| *   3c4933d Merge pull request #6 from Grupo4-CC3S2/feature/automation
+| |\  
+| | * 0966d34 (origin/feature/automation, feature/automation) Usar getent en basic_checks
+| | * 9fb85a5 Agregar mayor verificación de herramientas y seteo de /etc/hosts al iniciar la app
+| | * 10b42cd Agregar documentación
+| | * 418f2c6 Agregar targets desde el sla.csv,target test, target run y target all
+| | * d5a784b Agregar tests para el evaluador
+| | * 529fca9 Agregar sentencias unset: no variables residuales
+| |/  
+| * cb6cd30 Merge pull request #5 from Grupo4-CC3S2/feature/evaluador
+|/| 
+| * 8f8c184 (origin/feature/evaluador) Adaptar app.py al evaluador y agregar endpoint de reseteo
+| * b9de48d Añadir buena salida en fallo
+| * 423bcfe Agregar evaluador de métricas
+| * 7390ebe Añadir sla.csv
+| * 64732ab Añadir los src/*.sh a run
+|/  
+*   0c50b49 Merge pull request #4 from Grupo4-CC3S2/develop
+|\  
+| *   03ec42a Merge pull request #3 from Grupo4-CC3S2/feature/basic-checks-mora
+| |\  
+| | * d0f9164 (origin/feature/basic-checks-mora) Añadir documentación en la bitacora
+| | * 17a298d Añadir chequeos DNS, HTTP salud y socket.
+| | * 7f8d778 Añadir app a hosts
+| |/  
+| *   c745b32 Merge pull request #2 from Grupo4-CC3S2/feature/collector-Osorio
+| |\  
+| | * b0dd0d7 (origin/feature/collector-Osorio, feature/collector-Osorio) Tests para collect metrics con app.py
+| | * 1b861cf Modificación para usar endpoints de app.py
+| | * cd5c382 Agrega modificación para usar app.py
+| | * ccd6f38 Agrega bitacora Sprint1 con comandos usados
+| | * c4b40c2 Agrega pruebas bats básicos con validación del collect_metrics
+| | * b6a633c Agrega collect_metrics para captura de latencias y códigos
+| | *   f97a1ad Merge branch 'main' into develop git commit -m "Merge con carpetas base del proyecto"
+| | |\  
+| |_|/  
+|/| |   
+* | | af829c5 Estructura de proyecto con carpetas base
+| * |   4bc6536 Merge pull request #1 from Grupo4-CC3S2/feature/automation-Mora
+| |\ \  
+| | |/  
+| |/|   
+| | * 4b837aa (origin/feature/automation-Mora) Añadir target tools
+| | * c9d14c3 Añadir Makefile inicial
+| |/  
+| * 68477d5 Añadir aplicación de pruebas app.py
+|/  
+* 7eb4f06 Initial commit
