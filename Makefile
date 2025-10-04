@@ -34,10 +34,10 @@ PY ?= python3
 PYTHON := $(VENV_DIR)/bin/python
 PIP := $(VENV_DIR)/bin/pip
 
-export REALESE PORT MESSAGE DOMAIN BUDGET_MS SAMPLES TARGET SLA_FILE TARGETS SLOW_COUNTER
+export RELEASE PORT MESSAGE DOMAIN BUDGET_MS SAMPLES TARGET SLA_FILE TARGETS SLOW_COUNTER
 export LC_ALL := C
 
-all: tools test run ## Verifica herramientas, corre tests y ejecuta el sistema
+all: tools build test run ## Verifica herramientas, construye, prueba y ejecuta el sistema
 
 tools:
 	@command -v $(PY) >/dev/null || { echo "Falta $(PY)"; exit 1; }
@@ -52,8 +52,21 @@ tools:
 	@tar --version 2>/dev/null | grep -q 'GNU tar' || { echo "Se requiere GNU tar"; exit 1; }
 	@echo "[INFO] Todas las herramientas necesarias están instaladas."
 
-build:
-	echo TODO
+BUILD_STAMP := $(OUT_DIR)/.build_stamp
+
+build: tools $(BUILD_STAMP) ## Preparar artefactos intermedios sin ejecutar
+
+$(BUILD_STAMP): $(SLA_FILE) $(SRC_DIR)/*.sh
+	@echo "[BUILD] Preparando entorno..."
+	@mkdir -p $(OUT_DIR) $(DIST_DIR)
+	@chmod +x $(SRC_DIR)/*.sh
+	@echo "[BUILD] Validando configuración SLA..."
+	@test -f $(SLA_FILE) || { echo "Error: falta archivo $(SLA_FILE)"; exit 5; }
+	@test -s $(SLA_FILE) || { echo "Error: $(SLA_FILE) está vacío"; exit 5; }
+	@echo "[BUILD] Validando que hay al menos 1 endpoint en SLA..."
+	@[ $$(tail -n +2 $(SLA_FILE) | wc -l) -gt 0 ] || { echo "Error: SLA sin endpoints"; exit 5; }
+	@touch $(BUILD_STAMP)
+	@echo "[BUILD] Build completado. Sistema listo para 'make run'"
 
 test:
 	@bats $(TEST_DIR)/*.bats
@@ -70,8 +83,19 @@ run: ## Consulta cada URL con curl, registra tiempos, códigos de estado y heade
 	@echo "[INFO] Realizando evaluación SLA..."
 	@$(SRC_DIR)/evaluate_metrics.sh || true
 
-pack:
-	echo TODO
+pack: build ## Crear paquete reproducible en dist/
+	@echo "[PACK] Creando paquete $(RELEASE)..."
+	@tar czf $(DIST_DIR)/proyecto-sla-$(RELEASE).tar.gz \
+		--exclude='out' \
+		--exclude='dist' \
+		--exclude='__pycache__' \
+		--exclude='*.pyc' \
+		--exclude='venv' \
+		--exclude='.git' \
+		--transform 's,^,proyecto-sla-$(RELEASE)/,' \
+		src/ tests/ docs/ Makefile README.md requirements.txt app.py 2>/dev/null || true
+	@echo "[PACK] ✓ Paquete creado: $(DIST_DIR)/proyecto-sla-$(RELEASE).tar.gz"
+	@ls -lh $(DIST_DIR)/proyecto-sla-$(RELEASE).tar.gz
 
 clean: ## Limpiar archivos generados
 	rm -rf $(OUT_DIR) $(DIST_DIR)
